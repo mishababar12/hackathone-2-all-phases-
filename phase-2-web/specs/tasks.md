@@ -66,7 +66,7 @@
 - [x] T017 [US2] Create Task Component in `phase-2-web/frontend/src/components/TaskItem.tsx`
 - [x] T018 [US2] Create Dashboard Page (Task List + Add Form) in `phase-2-web/frontend/src/app/dashboard/page.tsx`
 - [x] T019 [US2] Implement Fetch/Mutate hooks for Task CRUD in `phase-2-web/frontend/src/lib/tasks.ts`
-- [ ] T020 [US2] Add User-Isolation filter to all Task queries in Backend services
+- [x] T020 [US2] Add User-Isolation filter to all Task queries in Backend services (Verified in task routes)
 
 **Checkpoint**: User Story 2 should work independently (using the Auth from US1)
 

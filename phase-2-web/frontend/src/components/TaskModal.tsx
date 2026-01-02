@@ -1,15 +1,16 @@
 "use client";
 
-import { Plus, X } from "lucide-react";
+import { Plus, X, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (title: string, description?: string, priority?: "low" | "medium" | "high", dueDate?: string) => void;
+  isSubmitting?: boolean;
 }
 
-export function TaskModal({ isOpen, onClose, onSubmit }: TaskModalProps) {
+export function TaskModal({ isOpen, onClose, onSubmit, isSubmitting = false }: TaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
@@ -61,7 +62,7 @@ export function TaskModal({ isOpen, onClose, onSubmit }: TaskModalProps) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-cyan-200 mb-2">Task Title *</label>
@@ -89,27 +90,27 @@ export function TaskModal({ isOpen, onClose, onSubmit }: TaskModalProps) {
           </div>
 
           {/* Priority and Due Date */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="w-full">
               <label className="block text-sm font-medium text-cyan-200 mb-2">Priority</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as "low" | "medium" | "high")}
-                className="w-full px-6 py-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all"
+                className="w-full px-5 py-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all cursor-pointer hover:bg-white/15"
               >
-                <option value="low" className="bg-gray-900">🟢 Low Priority</option>
-                <option value="medium" className="bg-gray-900">🟡 Medium Priority</option>
-                <option value="high" className="bg-gray-900">🔴 High Priority</option>
+                <option value="low" className="bg-[#0f172a]">🟢 Low Priority</option>
+                <option value="medium" className="bg-[#0f172a]">🟡 Medium Priority</option>
+                <option value="high" className="bg-[#0f172a]">🔴 High Priority</option>
               </select>
             </div>
 
-            <div>
+            <div className="w-full">
               <label className="block text-sm font-medium text-cyan-200 mb-2">Due Date (Optional)</label>
               <input
                 type="datetime-local"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-6 py-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all"
+                className="w-full px-6 py-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all font-sans"
               />
             </div>
           </div>
@@ -125,13 +126,20 @@ export function TaskModal({ isOpen, onClose, onSubmit }: TaskModalProps) {
             </button>
             <button
               type="submit"
-              disabled={!title.trim()}
-              className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-bold text-white hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95"
+              disabled={!title.trim() || isSubmitting}
+              className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-bold text-white hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
             >
-              <span className="flex items-center justify-center gap-2">
-                <Plus className="h-5 w-5" />
-                Create Task
-              </span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-5 w-5" />
+                  Create Task
+                </>
+              )}
             </button>
           </div>
         </form>

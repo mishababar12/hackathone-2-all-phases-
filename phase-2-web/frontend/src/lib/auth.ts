@@ -17,7 +17,22 @@ export const setToken = (token: string) => {
 
 export const getToken = () => {
   if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+
+    try {
+      const decoded = jwtDecode(token) as JWTPayload;
+      const currentTime = Date.now() / 1000;
+      if (decoded.exp < currentTime) {
+        console.warn("Token expired");
+        removeToken();
+        return null;
+      }
+      return token;
+    } catch {
+      removeToken();
+      return null;
+    }
   }
   return null;
 };
