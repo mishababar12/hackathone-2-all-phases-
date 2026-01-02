@@ -1,0 +1,10 @@
+# Railway Deployment for FastAPI
+[build]
+builder = "nixpacks"
+buildCommand = "uv sync"
+
+[deploy]
+startCommand = "uv run fastapi run src/main.py --port $PORT --proxy-headers"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicy = "on-failure"
