@@ -11,8 +11,7 @@ engine = create_engine(DATABASE_URL, echo=True)
 def init_db():
     from .models.user import User
     from .models.task import Task
-    # Drop all tables first to recreate with new schema
-    SQLModel.metadata.drop_all(engine)
+    # Create tables only if they don't exist (serverless-safe)
     SQLModel.metadata.create_all(engine)
 
 def get_session():

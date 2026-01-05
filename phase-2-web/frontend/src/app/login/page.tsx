@@ -18,25 +18,52 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    try {
-      const response = await fetch(`${API_URL}/api/v1/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+    // Retry logic for serverless cold starts
+    const maxRetries = 2;
+    let attempt = 0;
 
-      const data = await response.json();
+    while (attempt < maxRetries) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
-      if (!response.ok) {
-        throw new Error(data.detail || "Login failed");
+        const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || "Login failed");
+        }
+
+        // Success - save token and redirect
+        setToken(data.access_token);
+        router.push("/dashboard");
+        return; // Exit function on success
+      } catch (err: any) {
+        attempt++;
+
+        // If it's a timeout or network error and we have retries left
+        if (attempt < maxRetries && (err.name === "AbortError" || err.message.includes("fetch"))) {
+          console.log(`Login attempt ${attempt} failed, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+          continue;
+        }
+
+        // Final error after all retries
+        setError(err.message || "Login failed. Please try again.");
+        break;
+      } finally {
+        if (attempt >= maxRetries) {
+          setLoading(false);
+        }
       }
-
-      setToken(data.access_token);
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 

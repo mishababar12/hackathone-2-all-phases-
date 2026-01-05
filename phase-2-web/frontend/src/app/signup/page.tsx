@@ -19,23 +19,50 @@ export default function Signup() {
     setLoading(true);
     setError("");
 
-    try {
-      const response = await fetch(`${API_URL}/api/v1/auth/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name }),
-      });
+    // Retry logic for serverless cold starts
+    const maxRetries = 2;
+    let attempt = 0;
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || "Signup failed");
+    while (attempt < maxRetries) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+        const response = await fetch(`${API_URL}/api/v1/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, name }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.detail || "Signup failed");
+        }
+
+        // Success - redirect to login
+        router.push("/login");
+        return; // Exit function on success
+      } catch (err: any) {
+        attempt++;
+
+        // If it's a timeout or network error and we have retries left
+        if (attempt < maxRetries && (err.name === "AbortError" || err.message.includes("fetch"))) {
+          console.log(`Signup attempt ${attempt} failed, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+          continue;
+        }
+
+        // Final error after all retries
+        setError(err.message || "Signup failed. Please try again.");
+        break;
+      } finally {
+        if (attempt >= maxRetries) {
+          setLoading(false);
+        }
       }
-
-      router.push("/login");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
