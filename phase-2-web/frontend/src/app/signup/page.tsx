@@ -20,13 +20,13 @@ export default function Signup() {
     setError("");
 
     // Retry logic for serverless cold starts
-    const maxRetries = 2;
-    let attempt = 0;
+    const maxRetries = 3;
+    let lastError = null;
 
-    while (attempt < maxRetries) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
         const response = await fetch(`${API_URL}/api/v1/auth/signup`, {
           method: "POST",
@@ -39,31 +39,42 @@ export default function Signup() {
 
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.detail || "Signup failed");
+          // This is a real error (not network issue), don't retry
+          setLoading(false);
+          setError(data.detail || "Signup failed");
+          return;
         }
 
         // Success - redirect to login
+        setLoading(false);
         router.push("/login");
-        return; // Exit function on success
+        return;
       } catch (err: any) {
-        attempt++;
+        lastError = err;
+        console.log(`Signup attempt ${attempt + 1}/${maxRetries} failed:`, err.message);
 
-        // If it's a timeout or network error and we have retries left
-        if (attempt < maxRetries && (err.name === "AbortError" || err.message.includes("fetch"))) {
-          console.log(`Signup attempt ${attempt} failed, retrying...`);
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+        // Check if it's a network/timeout error worth retrying
+        const isRetryable =
+          err.name === "AbortError" ||
+          err.message.toLowerCase().includes("failed to fetch") ||
+          err.message.toLowerCase().includes("network") ||
+          err.message.toLowerCase().includes("timeout");
+
+        // If we have more attempts and it's a retryable error
+        if (attempt < maxRetries - 1 && isRetryable) {
+          console.log("Retrying in 2 seconds...");
+          await new Promise(resolve => setTimeout(resolve, 2000));
           continue;
         }
 
-        // Final error after all retries
-        setError(err.message || "Signup failed. Please try again.");
+        // Final attempt failed or non-retryable error
         break;
-      } finally {
-        if (attempt >= maxRetries) {
-          setLoading(false);
-        }
       }
     }
+
+    // All retries exhausted
+    setLoading(false);
+    setError(lastError?.message || "Connection failed. Please try again.");
   };
 
   return (
