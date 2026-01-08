@@ -21,5 +21,8 @@ EXPOSE 7860
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
+# Run database migrations before starting the server
+RUN alembic upgrade head
+
 # Start command for Hugging Face Spaces
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "7860"]
