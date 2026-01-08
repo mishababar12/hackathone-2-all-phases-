@@ -8,12 +8,18 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
+# Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY . .
 
-# Start command (Railway will override PORT)
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Expose port 7860 for Hugging Face Spaces
+EXPOSE 7860
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Start command for Hugging Face Spaces
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "7860"]
