@@ -21,9 +21,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
+          storageKey="todo-hackathon-theme"
         >
           {children}
           <Toaster position="top-right" />
