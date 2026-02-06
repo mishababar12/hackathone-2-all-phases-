@@ -1,11 +1,12 @@
 ---
-title: Todo Web App API
-emoji: 📝
+title: Phase 3 AI Chatbot Backend
+emoji: 🤖
 colorFrom: blue
 colorTo: purple
 sdk: docker
 pinned: false
 license: mit
+app_port: 7860
 ---
 
 # Todo Web App Backend API
