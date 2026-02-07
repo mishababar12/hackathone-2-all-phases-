@@ -501,7 +501,7 @@ function AuthenticatedChatInterface() {
           />
           <Button
             type="submit"
-            variant="secondary"
+            variant="default"
             className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
             disabled={isLoading || !input.trim()}
           >
