@@ -171,13 +171,15 @@ function AuthenticatedChatInterface() {
             return [...prev.slice(0, -1), {
               id: Date.now().toString(),
               role: 'assistant',
-              content: assistantMessage
+              content: assistantMessage,
+              timestamp: new Date()
             }];
           } else {
             return [...prev, {
               id: Date.now().toString(),
               role: 'assistant',
-              content: assistantMessage
+              content: assistantMessage,
+              timestamp: new Date()
             }];
           }
         });
