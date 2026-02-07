@@ -264,7 +264,7 @@ function AuthenticatedChatInterface() {
                    (assistantMessage.toLowerCase().includes('current') ||
                     assistantMessage.toLowerCase().includes('would you like'))) {
           // Handle task listing responses that indicate outdated information
-          toast.info('Task list updated', {
+          toast('Task list updated', {
             icon: <AlertCircle className="h-5 w-5 text-blue-500" />,
             style: {
               background: '#1e293b',
