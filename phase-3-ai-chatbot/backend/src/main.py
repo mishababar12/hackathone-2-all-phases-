@@ -29,8 +29,10 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(tasks.router, prefix="/api/v1")
 app.include_router(chat.router)
 
-# Removed startup event for serverless compatibility
-# Database tables should be created manually or via migrations
+# Initialize database on startup
+@app.on_event("startup")
+def on_startup():
+    init_db()
 
 @app.get("/health")
 def health_check():
