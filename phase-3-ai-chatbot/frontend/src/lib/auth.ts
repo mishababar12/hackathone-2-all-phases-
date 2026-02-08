@@ -23,7 +23,10 @@ export const getToken = () => {
     try {
       const decoded = jwtDecode(token) as JWTPayload;
       const currentTime = Date.now() / 1000;
-      if (decoded.exp < currentTime) {
+
+      // Add 5 minute buffer for timezone differences between client and server
+      const bufferSeconds = 300;
+      if (decoded.exp + bufferSeconds < currentTime) {
         console.warn("Token expired");
         removeToken();
         return null;
