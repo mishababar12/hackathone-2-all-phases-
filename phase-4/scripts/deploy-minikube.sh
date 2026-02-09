@@ -53,7 +53,7 @@ metadata:
 type: Opaque
 stringData:
   DATABASE_URL: "your-neon-database-url"
-  OPENAI_API_KEY: "your-openai-api-key"
+  COHERE_API_KEY: "your-cohere-api-key"
   BETTER_AUTH_SECRET: "your-jwt-secret"
 EOF
     echo -e "${RED}Please edit $SECRETS_FILE with your actual credentials${NC}"

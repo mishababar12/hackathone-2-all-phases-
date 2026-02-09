@@ -44,7 +44,7 @@ secrets:
   name: todo-backend-secrets
   # Default empty values - MUST be overridden
   databaseUrl: ""
-  openaiApiKey: ""
+  cohereApiKey: ""
   betterAuthSecret: ""
 
 env:

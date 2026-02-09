@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    image: todo-chatbot-backend:latest
+    container_name: todo-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./todo_app.db
+      - COHERE_API_KEY=${COHERE_API_KEY:-74TbhehtvyZp2dw4Alh3g7Sc2b5g5KyCgBPXRtoL}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-jwt-secret-key-for-phase4-deployment-minimum-32-chars-long}
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  frontend:
+    image: todo-chatbot-frontend:latest
+    container_name: todo-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    name: todo-chatbot-network

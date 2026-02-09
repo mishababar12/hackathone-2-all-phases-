@@ -38,7 +38,7 @@ eval $(minikube docker-env)
 
 # 4. Create secrets (edit with your values first)
 cp secrets.yaml.example secrets.yaml
-# Edit secrets.yaml with your DATABASE_URL, OPENAI_API_KEY, BETTER_AUTH_SECRET
+# Edit secrets.yaml with your DATABASE_URL, COHERE_API_KEY, BETTER_AUTH_SECRET
 kubectl apply -f secrets.yaml
 
 # 5. Deploy
@@ -138,7 +138,7 @@ docker images | grep todo-chatbot
 # Create secrets file
 kubectl create secret generic todo-backend-secrets \
   --from-literal=DATABASE_URL='postgresql://...' \
-  --from-literal=OPENAI_API_KEY='sk-...' \
+  --from-literal=COHERE_API_KEY='your-cohere-api-key' \
   --from-literal=BETTER_AUTH_SECRET='your-secret'
 ```
 
@@ -226,7 +226,7 @@ docker ai "why is my container failing to start?"
 | Variable | Description | Required |
 |----------|-------------|----------|
 | DATABASE_URL | Neon PostgreSQL connection string | Yes |
-| OPENAI_API_KEY | OpenAI API key for chat | Yes |
+| COHERE_API_KEY | Cohere API key for chat | Yes |
 | BETTER_AUTH_SECRET | JWT signing secret | Yes |
 | PYTHONUNBUFFERED | Python output buffering | No |
 
