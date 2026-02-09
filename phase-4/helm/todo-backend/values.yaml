@@ -1,0 +1,55 @@
+# Default values for todo-backend
+replicaCount: 1
+
+image:
+  repository: todo-chatbot-backend
+  tag: latest
+  pullPolicy: Never  # For Minikube local images
+
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: 8000
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+probes:
+  liveness:
+    enabled: true
+    path: /health
+    port: 8000
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    enabled: true
+    path: /ready
+    port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Secrets - these should be created separately or via Helm install --set
+secrets:
+  # Create secret from values (set via --set or values file)
+  create: true
+  name: todo-backend-secrets
+  # Default empty values - MUST be overridden
+  databaseUrl: ""
+  openaiApiKey: ""
+  betterAuthSecret: ""
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

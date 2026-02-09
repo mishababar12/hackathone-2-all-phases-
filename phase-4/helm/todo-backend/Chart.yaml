@@ -1,0 +1,14 @@
+apiVersion: v2
+name: todo-backend
+description: Helm chart for Todo Chatbot Backend (FastAPI + MCP)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: Abdul Samad
+keywords:
+  - todo
+  - chatbot
+  - fastapi
+  - backend
+  - mcp

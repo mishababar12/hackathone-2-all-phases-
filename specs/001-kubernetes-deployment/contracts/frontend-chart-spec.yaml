@@ -1,0 +1,78 @@
+# Frontend Helm Chart Specification
+# Chart: todo-frontend
+# Version: 1.0.0
+
+apiVersion: v2
+name: todo-frontend
+description: Helm chart for Todo Chatbot Frontend (Next.js)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+# Dependencies (none for frontend)
+dependencies: []
+
+# Chart Values Schema
+values:
+  # Replica configuration
+  replicaCount: 1
+
+  # Image configuration
+  image:
+    repository: todo-chatbot-frontend
+    tag: latest
+    pullPolicy: Never  # For Minikube local images
+
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+
+  # Ingress configuration
+  ingress:
+    enabled: true
+    className: nginx
+    host: todo.local
+    path: /
+    pathType: Prefix
+
+  # Resource limits
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # Probes
+  probes:
+    liveness:
+      path: /
+      port: 3000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      path: /
+      port: 3000
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
+  # Environment variables from ConfigMap
+  config:
+    NEXT_PUBLIC_API_URL: "http://todo-backend:8000"
+    NODE_ENV: "production"
+
+# Templates to generate
+templates:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - configmap.yaml
+
+# Labels to apply to all resources
+commonLabels:
+  app: todo-chatbot
+  component: frontend
+  managed-by: helm

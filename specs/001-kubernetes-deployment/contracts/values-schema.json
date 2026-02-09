@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Todo Chatbot Helm Values Schema",
+  "description": "JSON Schema for validating Helm chart values for todo-frontend and todo-backend",
+  "type": "object",
+  "definitions": {
+    "resourceQuantity": {
+      "type": "string",
+      "pattern": "^[0-9]+(m|Mi|Gi)?$",
+      "description": "Kubernetes resource quantity (e.g., 100m, 256Mi, 1Gi)"
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Docker image repository"
+        },
+        "tag": {
+          "type": "string",
+          "default": "latest",
+          "description": "Docker image tag"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "default": "Never",
+          "description": "Image pull policy"
+        }
+      },
+      "required": ["repository"]
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+          "default": "ClusterIP"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "targetPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      },
+      "required": ["port", "targetPort"]
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": { "$ref": "#/definitions/resourceQuantity" },
+            "memory": { "$ref": "#/definitions/resourceQuantity" }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "cpu": { "$ref": "#/definitions/resourceQuantity" },
+            "memory": { "$ref": "#/definitions/resourceQuantity" }
+          }
+        }
+      }
+    },
+    "probe": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "HTTP path for probe"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "initialDelaySeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 10
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10
+        }
+      },
+      "required": ["path", "port"]
+    }
+  },
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Number of pod replicas"
+    },
+    "image": {
+      "$ref": "#/definitions/image"
+    },
+    "service": {
+      "$ref": "#/definitions/service"
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "className": {
+          "type": "string",
+          "default": "nginx"
+        },
+        "host": {
+          "type": "string",
+          "description": "Ingress hostname"
+        },
+        "path": {
+          "type": "string",
+          "default": "/"
+        },
+        "pathType": {
+          "type": "string",
+          "enum": ["Prefix", "Exact", "ImplementationSpecific"],
+          "default": "Prefix"
+        }
+      }
+    },
+    "resources": {
+      "$ref": "#/definitions/resources"
+    },
+    "probes": {
+      "type": "object",
+      "properties": {
+        "liveness": { "$ref": "#/definitions/probe" },
+        "readiness": { "$ref": "#/definitions/probe" }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of Kubernetes Secret"
+        },
+        "keys": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Secret keys to mount as environment variables"
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Non-sensitive configuration as environment variables"
+    },
+    "env": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Additional environment variables"
+    }
+  },
+  "required": ["image", "service"]
+}

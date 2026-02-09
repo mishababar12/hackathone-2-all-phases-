@@ -1,0 +1,87 @@
+# Backend Helm Chart Specification
+# Chart: todo-backend
+# Version: 1.0.0
+
+apiVersion: v2
+name: todo-backend
+description: Helm chart for Todo Chatbot Backend (FastAPI + MCP)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+# Dependencies (none - external database)
+dependencies: []
+
+# Chart Values Schema
+values:
+  # Replica configuration
+  replicaCount: 1
+
+  # Image configuration
+  image:
+    repository: todo-chatbot-backend
+    tag: latest
+    pullPolicy: Never  # For Minikube local images
+
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+
+  # Resource limits (higher for AI/ML workload)
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  # Probes
+  probes:
+    liveness:
+      path: /health
+      port: 8000
+      initialDelaySeconds: 15
+      periodSeconds: 10
+    readiness:
+      path: /ready
+      port: 8000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+
+  # Secrets (references to Kubernetes Secret)
+  secrets:
+    name: todo-secrets
+    keys:
+      - DATABASE_URL
+      - OPENAI_API_KEY
+      - BETTER_AUTH_SECRET
+
+  # Non-sensitive environment variables
+  env:
+    PYTHONUNBUFFERED: "1"
+
+# Templates to generate
+templates:
+  - deployment.yaml
+  - service.yaml
+  - secret.yaml  # Template for secret reference
+
+# Labels to apply to all resources
+commonLabels:
+  app: todo-chatbot
+  component: backend
+  managed-by: helm
+
+# Notes for deployment
+notes: |
+  Backend deployed successfully!
+
+  To check the health endpoint:
+    kubectl port-forward svc/todo-backend 8000:8000
+    curl http://localhost:8000/health
+
+  To view logs:
+    kubectl logs -f deployment/todo-backend

@@ -1,0 +1,54 @@
+# Default values for todo-frontend
+replicaCount: 1
+
+image:
+  repository: todo-chatbot-frontend
+  tag: latest
+  pullPolicy: Never  # For Minikube local images
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  host: todo.local
+  path: /
+  pathType: Prefix
+  annotations: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  liveness:
+    enabled: true
+    path: /
+    port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    enabled: true
+    path: /
+    port: 3000
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+config:
+  NEXT_PUBLIC_API_URL: "http://todo-backend:8000"
+  NODE_ENV: "production"
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
