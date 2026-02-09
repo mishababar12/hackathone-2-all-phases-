@@ -4,7 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Phase 4 Docker deployment: Use container name for internal networking
+    const backendUrl = 'http://todo-backend:8000';
     const body = await req.text();
 
     // Forward all headers including Authorization/Cookie
